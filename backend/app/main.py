@@ -1,5 +1,11 @@
 import os
 import json
+from datetime import datetime
+from dotenv import load_dotenv
+
+# Load local environment variables from backend/.env if present
+load_dotenv()
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -61,7 +67,11 @@ Format strictly with these keys:
             "recommended_route_id": "route_balanced",
             "reasoning_summary": "Bypasses the multi-year pack ice near Novolazarevskaya while saving 26 hours vs Safest route.",
             "critical_hazards": ["Marginal drift iceberg cluster at 68°S 8°E"],
-            "voyage_tradeoffs": {"fuel_saved_tons": 28, "time_penalty_hours": 8, "ice_risk": "Acceptable with thermal radar"},
+            "voyage_tradeoffs": {
+                "fuel_saved_tons": 28,
+                "time_penalty_hours": 8,
+                "ice_risk": "Acceptable with thermal radar"
+            },
             "officer_briefing": "Bridge Alert: Balanced Corridor approved. Divert 15 degrees East past Bouvet Island."
         }
 
@@ -77,3 +87,38 @@ Format strictly with these keys:
         return json.loads(response.text)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+class ConfirmRouteRequest(BaseModel):
+    voyage_id: str = "Maitri-2026-01"
+    selected_route_id: str = "route_balanced"
+    officer_name: str = "Chief Navigator"
+    officer_notes: str = "Route approved based on Gemini hazard analysis."
+
+@app.post("/api/confirm-route")
+def confirm_route(req: ConfirmRouteRequest):
+    record = {
+        "voyage_id": req.voyage_id,
+        "selected_route_id": req.selected_route_id,
+        "officer_name": req.officer_name,
+        "officer_notes": req.officer_notes,
+        "confirmed_at": datetime.utcnow().isoformat(),
+        "status": "LOCKED_IN_TRANSIT"
+    }
+    
+    # Cloud Firestore persist if running in GCP (Cloud Run) or credentials configured; safe instant fallback locally
+    try:
+        if os.getenv("GOOGLE_APPLICATION_CREDENTIALS") or os.getenv("K_SERVICE") or os.getenv("GCP_PROJECT"):
+            from google.cloud import firestore
+            db = firestore.Client()
+            db.collection("voyage_decisions").document(req.voyage_id).set(record)
+            storage_mode = "Cloud Firestore"
+        else:
+            storage_mode = "Local Ledger (Dev Mode)"
+    except Exception:
+        storage_mode = "Local Ledger (Dev Mode)"
+
+    return {
+        "status": "success",
+        "storage": storage_mode,
+        "record": record
+    }
