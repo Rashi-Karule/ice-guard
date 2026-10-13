@@ -24,7 +24,7 @@ async def test_get_routes(client: httpx.AsyncClient):
     assert res.status_code == 200, f"/api/routes returned {res.status_code}: {res.text}"
     data = res.json()
     assert "routes" in data and len(data["routes"]) > 0, "Invalid /api/routes payload"
-    return f"  [PASS] GET  /api/routes   -> {res.status_code} ({elapsed * 1000:.1f}ms, {len(data['routes'])} routes)"
+    return f"  [PASS] GET  /api/routes         -> {res.status_code} ({elapsed * 1000:.1f}ms, {len(data['routes'])} routes)"
 
 
 async def test_post_evaluate(client: httpx.AsyncClient):
@@ -36,7 +36,24 @@ async def test_post_evaluate(client: httpx.AsyncClient):
     assert res.status_code == 200, f"/api/evaluate returned {res.status_code}: {res.text}"
     data = res.json()
     assert "recommended_route_id" in data, "Invalid /api/evaluate payload: missing recommended_route_id"
-    return f"  [PASS] POST /api/evaluate -> {res.status_code} ({elapsed * 1000:.1f}ms, rec: '{data.get('recommended_route_id')}')"
+    return f"  [PASS] POST /api/evaluate       -> {res.status_code} ({elapsed * 1000:.1f}ms, rec: '{data.get('recommended_route_id')}')"
+
+
+async def test_post_confirm_route(client: httpx.AsyncClient):
+    payload = {
+        "voyage_id": "Maitri-2026-01",
+        "selected_route_id": "route_balanced",
+        "officer_name": "Chief Navigator",
+        "officer_notes": "Route verified against Sentinel-1 pack ice radar"
+    }
+    start = time.perf_counter()
+    res = await client.post("/api/confirm-route", json=payload)
+    elapsed = time.perf_counter() - start
+
+    assert res.status_code == 200, f"/api/confirm-route returned {res.status_code}: {res.text}"
+    data = res.json()
+    assert data.get("status") == "success", "Invalid /api/confirm-route payload: status not success"
+    return f"  [PASS] POST /api/confirm-route  -> {res.status_code} ({elapsed * 1000:.1f}ms, storage: '{data.get('storage')}')"
 
 
 async def main():
@@ -46,8 +63,12 @@ async def main():
     overall_start = time.perf_counter()
 
     async with await create_client() as client:
-        # Run both endpoint checks concurrently to guarantee < 5s total execution
-        results = await asyncio.gather(test_get_routes(client), test_post_evaluate(client))
+        # Run all 3 endpoint checks concurrently to guarantee < 5s total execution
+        results = await asyncio.gather(
+            test_get_routes(client),
+            test_post_evaluate(client),
+            test_post_confirm_route(client)
+        )
 
     total_time = time.perf_counter() - overall_start
 
