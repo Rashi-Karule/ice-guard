@@ -1,0 +1,40 @@
+{
+  "mission": "Maitri Resupply Voyage 2026",
+  "start": {"lat": -54.0, "lon": 3.0, "name": "Cape Town Approach"},
+  "destination": {"lat": -70.76, "lon": 11.73, "name": "Maitri Station Shelf"},
+  "routes": [
+    {
+      "id": "route_baseline",
+      "name": "Baseline (Direct Route)",
+      "distance_nm": 1120,
+      "eta_hours": 94,
+      "fuel_tons": 88,
+      "ice_hazard_score": 7.8,
+      "iceberg_clusters_in_path": 5,
+      "pack_ice_thickness_m": 2.1,
+      "risk_level": "High"
+    },
+    {
+      "id": "route_safest",
+      "name": "Safest (Deep Open Water Detour)",
+      "distance_nm": 1410,
+      "eta_hours": 128,
+      "fuel_tons": 124,
+      "ice_hazard_score": 1.4,
+      "iceberg_clusters_in_path": 0,
+      "pack_ice_thickness_m": 0.4,
+      "risk_level": "Very Low"
+    },
+    {
+      "id": "route_balanced",
+      "name": "Balanced (Polynya Corridor Bypass)",
+      "distance_nm": 1205,
+      "eta_hours": 102,
+      "fuel_tons": 96,
+      "ice_hazard_score": 3.2,
+      "iceberg_clusters_in_path": 1,
+      "pack_ice_thickness_m": 0.9,
+      "risk_level": "Low-Moderate"
+    }
+  ]
+}
