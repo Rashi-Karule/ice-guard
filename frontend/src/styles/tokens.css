@@ -1,0 +1,32 @@
+:root {
+  --bg-page:        #101820;
+  --bg-panel:       #18222e;
+  --bg-panel-hover: #1f2d3d;
+  --border:         #2a3a4e;
+  --text-primary:   #e8ecf1;
+  --text-secondary: #8899aa;
+  --accent:         #4db8ff;
+  --accent-dim:     #2a7ab5;
+  --ice:            #2a7ab5;
+  --danger:         #e05252;
+  --danger-dim:     rgba(224, 82, 82, 0.15);
+  --route-baseline: #6b7280;
+  --route-balanced: #e5a318;
+  --route-safest:   #22c55e;
+  --positive:       #22c55e;
+  --negative:       #e05252;
+  --warning:        #e5a318;
+  --badge-mock-bg:  rgba(229, 163, 24, 0.15);
+  --badge-mock-fg:  #e5a318;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --radius:   6px;
+  --radius-sm: 4px;
+
+  --font: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+}
