@@ -13,8 +13,12 @@ import { DEFAULT_START, DEFAULT_END } from './config';
 export function App() {
   const [startPoint, setStartPoint] = useState(DEFAULT_START);
   const [endPoint, setEndPoint] = useState(DEFAULT_END);
+  const [startName, setStartName] = useState('Bouvet Island Staging');
+  const [destinationName, setDestinationName] = useState('Atka Bay (Neumayer III)');
+  const [missionName, setMissionName] = useState('Antarctic Resupply Voyage — Neumayer III Station');
   const [clickTarget, setClickTarget] = useState('start');
-  const [hintText, setHintText] = useState('Click the map to change departure, or press Plan route.');
+  const [hintText, setHintText] = useState('Click map or type coordinates above, then press Plan route.');
+
   const [scene, setScene] = useState(null);
   const [isSceneMock, setIsSceneMock] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +26,12 @@ export function App() {
   const [isAdviceMock, setIsAdviceMock] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [decisions, setDecisions] = useState([]);
+  const [apiKeyVersion, setApiKeyVersion] = useState(0);
+
+  const hasApiKey = Boolean(
+    import.meta.env.VITE_GOOGLE_MAPS_API_KEY ||
+    (typeof localStorage !== 'undefined' && localStorage.getItem('GOOGLE_MAPS_API_KEY'))
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -38,13 +48,22 @@ export function App() {
     if (clickTarget === 'start') {
       setStartPoint(coords);
       setClickTarget('end');
-      setHintText('Departure set. Click the map to set destination.');
+      setHintText('Departure set on map. Click destination or edit inputs.');
     } else {
       setEndPoint(coords);
       setClickTarget('start');
-      setHintText('Destination set. Press Plan route to analyse.');
+      setHintText('Waypoints set. Press Plan route to analyse.');
     }
   }, [clickTarget]);
+
+  const handleApplyPreset = (preset) => {
+    setStartPoint(preset.start);
+    setEndPoint(preset.dest);
+    setStartName(preset.startName);
+    setDestinationName(preset.destName);
+    setMissionName(preset.mission);
+    setHintText(`Applied preset: ${preset.name}. Press Plan route to analyse.`);
+  };
 
   const handlePlanRoute = async () => {
     if (!startPoint || !endPoint) return;
@@ -64,10 +83,20 @@ export function App() {
   const handleReset = () => {
     setStartPoint(DEFAULT_START);
     setEndPoint(DEFAULT_END);
+    setStartName('Bouvet Island Staging');
+    setDestinationName('Atka Bay (Neumayer III)');
+    setMissionName('Antarctic Resupply Voyage — Neumayer III Station');
     setClickTarget('start');
     setAdviceData(null);
     setSelectedRoute(null);
-    setHintText('Reset to default voyage. Press Plan route to analyse.');
+    setHintText('Reset to defaults. Click map or type coordinates.');
+  };
+
+  const handleSaveApiKey = (key) => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('GOOGLE_MAPS_API_KEY', key);
+    }
+    setApiKeyVersion((v) => v + 1);
   };
 
   const handleLogDecision = async (payload) => {
@@ -78,9 +107,11 @@ export function App() {
 
   return (
     <div className="app-container">
-      <Header />
+      <Header hasApiKey={hasApiKey} onSaveApiKey={handleSaveApiKey} />
+
       <main className="app-content">
         <MapView
+          key={`map-${apiKeyVersion}`}
           scene={scene}
           startPoint={startPoint}
           endPoint={endPoint}
@@ -88,19 +119,27 @@ export function App() {
           selectedRoute={selectedRoute}
           onMapClick={handleMapClick}
         />
+
         <section className="panel-column" aria-label="Instrument Panel">
           <VoyagePanel
             startPoint={startPoint}
             endPoint={endPoint}
-            mission={adviceData?.mission}
-            startName={adviceData?.start?.name}
-            destinationName={adviceData?.destination?.name}
+            mission={adviceData?.mission || missionName}
+            startName={startName}
+            destinationName={destinationName}
+            onUpdateStart={setStartPoint}
+            onUpdateEnd={setEndPoint}
+            onUpdateStartName={setStartName}
+            onUpdateDestName={setDestinationName}
+            onApplyPreset={handleApplyPreset}
             isLoading={isLoading}
             hintText={hintText}
             onPlanRoute={handlePlanRoute}
             onReset={handleReset}
           />
+
           <DataSourceBar meta={scene?.meta} isMock={isSceneMock || isAdviceMock} />
+
           {adviceData && (
             <>
               <Headline routes={adviceData.routes} isMock={isAdviceMock} />
@@ -121,6 +160,7 @@ export function App() {
               />
             </>
           )}
+
           <DecisionLog decisions={decisions} />
         </section>
       </main>

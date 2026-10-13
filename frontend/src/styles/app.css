@@ -217,29 +217,85 @@ body {
   letter-spacing: 0.04em;
 }
 
-/* Voyage Controls */
-.voyage-coords {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-md);
+.voyage-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
   margin-bottom: var(--space-md);
-  background: rgba(11, 20, 29, 0.5);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
 }
 
-.coord-label {
+.waypoint-box {
+  background: rgba(11, 20, 29, 0.6);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+}
+
+.waypoint-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.waypoint-tag {
   font-size: 0.65rem;
-  color: var(--text-secondary);
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 2px;
+  color: var(--accent);
 }
 
-.coord-val {
-  font-size: 0.8rem;
-  color: var(--accent);
+.input-row {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.input-field {
+  background: #0f1924;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-size: 0.75rem;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  width: 100%;
+}
+
+.input-field:focus {
+  outline: 1px solid var(--accent);
+  border-color: var(--accent);
+}
+
+.input-field.mono {
+  font-family: var(--font-mono);
+}
+
+.input-label-small {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  min-width: 28px;
+}
+
+.preset-selector {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.select-input {
+  background: #0f1924;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-size: 0.72rem;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  width: 100%;
+  cursor: pointer;
 }
 
 .voyage-actions {
@@ -253,6 +309,44 @@ body {
   font-size: 0.7rem;
   color: var(--text-secondary);
   line-height: 1.4;
+}
+
+/* Modal for API Key */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: var(--space-md);
+  backdrop-filter: blur(2px);
+}
+
+.modal-content {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-width: 460px;
+  width: 100%;
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.modal-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
 }
 
 /* Buttons */
